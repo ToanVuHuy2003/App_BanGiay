@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -32,5 +33,46 @@
             android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
+        <!-- Layout chỉnh số lượng -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/btnDecreaseQuantity"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/remove_24dp"
+                app:tint="@color/black"
+                android:padding="4dp"/>
+
+            <TextView
+                android:id="@+id/txtProductQuantity"
+                android:text="1"
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"/>
+
+            <ImageView
+                android:id="@+id/btnIncreaseQuantity"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_add_24"
+                app:tint="@color/black"
+                android:padding="4dp"/>
+        </LinearLayout>
     </LinearLayout>
+
+    <!-- Nút xóa sản phẩm -->
+    <ImageView
+        android:id="@+id/btnDeleteProduct"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/baseline_delete_24"
+        android:layout_gravity="center_vertical"
+        app:tint="@color/black"/>
 </LinearLayout>

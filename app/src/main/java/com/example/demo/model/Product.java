@@ -13,12 +13,13 @@ public class Product implements Parcelable {
     private List<String> idSize; // Chuyển từ String sang List<String>
     private String moTa;
     private String hinhAnh;
+    private int soLuong;
 
     public Product() {
         this.idSize = new ArrayList<>(); // Khởi tạo danh sách để tránh NullPointerException
     }
 
-    public Product(String idSP, String tenSP, int giaTien, String idHang, List<String> idSize, String moTa, String hinhAnh) {
+    public Product(String idSP, String tenSP, int giaTien, String idHang, List<String> idSize, String moTa, String hinhAnh, int soLuong) {
         this.idSP = idSP;
         this.tenSP = tenSP;
         this.giaTien = giaTien;
@@ -26,6 +27,7 @@ public class Product implements Parcelable {
         this.idSize = idSize;
         this.moTa = moTa;
         this.hinhAnh = hinhAnh;
+        this.soLuong = 1;
     }
 
     protected Product(Parcel in) {
@@ -87,4 +89,12 @@ public class Product implements Parcelable {
 
     public String getHinhAnh() { return hinhAnh; }
     public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+
+    public int getSoLuong() {
+        return soLuong;
+    }
+
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
+    }
 }

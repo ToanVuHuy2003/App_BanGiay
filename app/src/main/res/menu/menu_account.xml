@@ -4,4 +4,8 @@
         android:id="@+id/menu_logout"
         android:title="Đăng xuất"
         android:icon="@drawable/baseline_logout_24"/>
+    <item
+        android:id="@+id/profile"
+        android:title="Tài khoản"
+        android:icon="@drawable/manage_accounts_24dp"/>
 </menu>

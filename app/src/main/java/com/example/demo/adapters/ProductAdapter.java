@@ -60,7 +60,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
         holder.productName.setText(product.getTenSP());
-        holder.productPrice.setText(String.format("đ%d", product.getGiaTien()));
+        holder.productPrice.setText(String.format("đ %,d", product.getGiaTien()));
 
         // Load ảnh bằng Glide
         if (product.getHinhAnh() != null && !product.getHinhAnh().isEmpty()) {

@@ -45,7 +45,7 @@ public class CartFragment extends Fragment {
         txtTotalPrice = view.findViewById(R.id.txtTotalPrice);
 
         cartList = new ArrayList<>();
-        cartAdapter = new CartAdapter(getContext(), cartList);
+        cartAdapter = new CartAdapter(getContext(), cartList, txtTotalPrice);
 
         recyclerViewCart.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewCart.setAdapter(cartAdapter);
@@ -85,8 +85,9 @@ public class CartFragment extends Fragment {
                                 int soLuong = ((Long) item.get("soLuong")).intValue();
                                 int tongTien = ((Long) item.get("tongTien")).intValue();
 
-                                // Tạo đối tượng Product (idSize là danh sách rỗng)
-                                Product product = new Product(idSP, tenSP, giaTien, "", new ArrayList<>(), "", hinhAnh);
+                                // Tạo đối tượng Product với thông tin số lượng
+                                Product product = new Product(idSP, tenSP, giaTien, "", new ArrayList<>(), "", hinhAnh, soLuong);
+                                product.setSoLuong(soLuong);
                                 cartList.add(product);
                                 totalPrice += tongTien;
                             }
@@ -94,7 +95,7 @@ public class CartFragment extends Fragment {
                     }
 
                     cartAdapter.notifyDataSetChanged();
-                    txtTotalPrice.setText(String.format("Tổng tiền: đ%d", totalPrice));
+                    txtTotalPrice.setText(String.format("Tổng tiền: đ %,d", totalPrice));
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Lỗi khi tải giỏ hàng!", Toast.LENGTH_SHORT).show());
     }
