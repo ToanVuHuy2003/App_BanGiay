@@ -11,7 +11,6 @@
         android:id="@+id/imgProduct"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/test_pro"
         android:scaleType="centerCrop"/>
 
     <TextView
