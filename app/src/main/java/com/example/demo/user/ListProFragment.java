@@ -28,6 +28,7 @@ public class ListProFragment extends Fragment {
     private List<Categories> categoriesList;
     private List<Product> productList;
     private FirebaseFirestore db;
+    private String selectedCategoryId = null; // Lưu trữ idHang được chọn
 
     public ListProFragment() {
         // Required empty public constructor
@@ -40,19 +41,19 @@ public class ListProFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        // Khởi tạo RecyclerView cho danh sách thể loại
+        // Khởi tạo RecyclerView cho danh mục
         recyclerViewCategories = view.findViewById(R.id.recyclerViewCategories);
         recyclerViewCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        // Khởi tạo danh sách và adapter cho thể loại
+        // Khởi tạo danh sách và adapter cho danh mục
         categoriesList = new ArrayList<>();
-        categoriesAdapter = new CategoriesAdapter(categoriesList);
+        categoriesAdapter = new CategoriesAdapter(categoriesList, this::onCategorySelected);
         recyclerViewCategories.setAdapter(categoriesAdapter);
 
-        // Load danh sách thể loại từ Firestore
+        // Load danh mục từ Firestore
         loadCategoriesFromFirestore();
 
-        // Khởi tạo RecyclerView cho danh sách sản phẩm với GridLayoutManager
+        // Khởi tạo RecyclerView cho sản phẩm
         recyclerViewProducts = view.findViewById(R.id.recyclerViewProducts);
         recyclerViewProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
@@ -61,8 +62,8 @@ public class ListProFragment extends Fragment {
         productAdapter = new ProductAdapter(getContext(), productList);
         recyclerViewProducts.setAdapter(productAdapter);
 
-        // Load danh sách sản phẩm từ Firestore
-        loadProductsFromFirestore();
+        // Load tất cả sản phẩm ban đầu
+        loadProductsFromFirestore(null);
 
         return view;
     }
@@ -72,6 +73,7 @@ public class ListProFragment extends Fragment {
         categoriesRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 categoriesList.clear();
+                categoriesList.add(new Categories("all", "Tất cả")); // Thêm danh mục "Tất cả"
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String idHang = document.getString("idHang");
                     String tenHang = document.getString("tenHang");
@@ -82,7 +84,7 @@ public class ListProFragment extends Fragment {
         });
     }
 
-    private void loadProductsFromFirestore() {
+    private void loadProductsFromFirestore(String idHang) {
         db.collection("SanPham")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -90,11 +92,17 @@ public class ListProFragment extends Fragment {
                         productList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
-                            productList.add(product);
+                            if (idHang == null || idHang.equals("all") || product.getIdHang().equals(idHang)) {
+                                productList.add(product);
+                            }
                         }
                         productAdapter.notifyDataSetChanged();
                     }
                 });
     }
 
+    private void onCategorySelected(String idHang) {
+        selectedCategoryId = idHang;
+        loadProductsFromFirestore(selectedCategoryId);
+    }
 }

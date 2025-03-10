@@ -1,6 +1,7 @@
 package com.example.demo.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,7 +100,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     // Hàm thêm sản phẩm vào giỏ hàng trong Firestore
     private void addToCart(Product product) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = "01"; // ID người dùng tạm thời (thay bằng ID người dùng thực tế nếu có)
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        // ID người dùng tạm thời (thay bằng ID người dùng thực tế nếu có)
+        String userId = sharedPreferences.getString("idKH", null);
 
         // Tham chiếu đến giỏ hàng của người dùng
         DocumentReference cartRef = db.collection("GioHang").document(userId);
