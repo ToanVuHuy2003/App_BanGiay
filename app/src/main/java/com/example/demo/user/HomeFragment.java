@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import com.example.demo.LoginActivity;
 import com.example.demo.R;
 import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.model.Product;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -48,6 +50,15 @@ public class HomeFragment extends Fragment {
 
         recyclerViewHotProd = view.findViewById(R.id.recyclerViewHotProd);
         recyclerViewHotProd.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        Button btnNewProductList = view.findViewById(R.id.btnNewProductList);
+        btnNewProductList.setOnClickListener(v -> {
+            // Lấy BottomNavigationView từ MainActivity
+            BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.navMenu);
+
+            // Chuyển sang tab ListProFragment
+            bottomNavigationView.setSelectedItemId(R.id.mnList);
+        });
 
         // Ánh xạ icon tài khoản
         accountIcon = view.findViewById(R.id.account_icon);

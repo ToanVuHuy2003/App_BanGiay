@@ -100,8 +100,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     // Hàm thêm sản phẩm vào giỏ hàng trong Firestore
     private void addToCart(Product product) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         SharedPreferences sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        // ID người dùng tạm thời (thay bằng ID người dùng thực tế nếu có)
         String userId = sharedPreferences.getString("idKH", null);
 
         // Tham chiếu đến giỏ hàng của người dùng

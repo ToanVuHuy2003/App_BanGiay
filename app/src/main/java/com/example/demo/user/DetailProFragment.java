@@ -1,5 +1,7 @@
 package com.example.demo.user;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -7,8 +9,11 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -18,7 +23,9 @@ import com.example.demo.model.Size;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DetailProFragment extends Fragment {
     private static final String ARG_ID = "idSP";
@@ -36,6 +43,7 @@ public class DetailProFragment extends Fragment {
     private SizeAdapter sizeAdapter;
     private List<Size> sizeList;
     private FirebaseFirestore db;
+    private Context context;
 
     public DetailProFragment() {
         // Required empty public constructor
@@ -78,6 +86,9 @@ public class DetailProFragment extends Fragment {
         TextView txtProductDescription = view.findViewById(R.id.txtProductDescription);
         ImageView btnBack = view.findViewById(R.id.btnBack);
         recyclerViewSizes = view.findViewById(R.id.recyclerViewSizes);
+
+        Button btnAddToCart = view.findViewById(R.id.btnAddToCart);
+        btnAddToCart.setOnClickListener(v -> addToCart());
 
         txtProductName.setText(productName);
         txtProductPrice.setText(String.format("đ%s", productPrice));
@@ -135,4 +146,74 @@ public class DetailProFragment extends Fragment {
                     }
                 });
     }
+
+    private void addToCart() {
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("idKH", null);
+
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập để thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String cartId = userId; // Sử dụng userId làm idGioHang
+
+        db.collection("GioHang").document(cartId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    Map<String, Object> cartData;
+                    List<Map<String, Object>> productList;
+
+                    if (documentSnapshot.exists()) {
+                        cartData = documentSnapshot.getData();
+                        productList = (List<Map<String, Object>>) cartData.get("idSP");
+                    } else {
+                        cartData = new HashMap<>();
+                        productList = new ArrayList<>();
+                    }
+
+                    boolean productExists = false;
+                    for (Map<String, Object> product : productList) {
+                        if (product.get("idSP").equals(productId)) {
+                            int currentQuantity = ((Long) product.get("soLuong")).intValue();
+                            product.put("soLuong", currentQuantity + 1);
+                            product.put("tongTien", (currentQuantity + 1) * Integer.parseInt(productPrice));
+                            productExists = true;
+                            break;
+                        }
+                    }
+
+                    if (!productExists) {
+                        Map<String, Object> newProduct = new HashMap<>();
+                        newProduct.put("idSP", productId);
+                        newProduct.put("tenSP", productName);
+                        newProduct.put("giaTien", Integer.parseInt(productPrice));
+                        newProduct.put("hinhAnh", productImageUrl);
+                        newProduct.put("soLuong", 1);
+                        newProduct.put("moTa", productDescription);
+                        newProduct.put("tongTien", Integer.parseInt(productPrice));
+                        productList.add(newProduct);
+                    }
+
+                    cartData.put("idSP", productList);
+                    cartData.put("idKH", userId);
+
+                    int totalQuantity = productList.stream()
+                            .mapToInt(p -> ((Number) p.get("soLuong")).intValue()) // Ép kiểu an toàn
+                            .sum();
+
+                    int totalPrice = productList.stream()
+                            .mapToInt(p -> ((Number) p.get("tongTien")).intValue()) // Ép kiểu an toàn
+                            .sum();
+
+                    cartData.put("soLuong", totalQuantity);
+                    cartData.put("tongTien", totalPrice);
+
+                    db.collection("GioHang").document(cartId)
+                            .set(cartData)
+                            .addOnSuccessListener(aVoid -> Toast.makeText(requireContext(), "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e -> Toast.makeText(requireContext(), "Lỗi khi thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show());
+                });
+    }
+
 }

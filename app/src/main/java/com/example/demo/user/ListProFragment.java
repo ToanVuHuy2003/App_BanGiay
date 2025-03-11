@@ -3,6 +3,7 @@ package com.example.demo.user;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,11 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.example.demo.R;
 import com.example.demo.adapters.CategoriesAdapter;
 import com.example.demo.adapters.ProductAdapter;
 import com.example.demo.model.Categories;
 import com.example.demo.model.Product;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -44,6 +47,13 @@ public class ListProFragment extends Fragment {
         // Khởi tạo RecyclerView cho danh mục
         recyclerViewCategories = view.findViewById(R.id.recyclerViewCategories);
         recyclerViewCategories.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        AppCompatImageButton btnBackHome = view.findViewById(R.id.btn_backHome);
+
+        btnBackHome.setOnClickListener(v -> {
+            BottomNavigationView bottomNavigationView = requireActivity().findViewById(R.id.navMenu);
+            bottomNavigationView.setSelectedItemId(R.id.mnHome);
+        });
 
         // Khởi tạo danh sách và adapter cho danh mục
         categoriesList = new ArrayList<>();
