@@ -97,42 +97,54 @@ public class RegisterActivity extends AppCompatActivity {
     private void checkEmailVerification(FirebaseUser user, String name, String phone, String address) {
         new Thread(() -> {
             try {
-                // Đợi user xác nhận email
                 while (!user.isEmailVerified()) {
                     user.reload();
-                    Thread.sleep(3000); // Kiểm tra lại sau 3 giây
+                    Thread.sleep(3000);
                 }
-
-                // Khi email đã xác nhận, lưu thông tin vào Firestore
-                runOnUiThread(() -> saveUserToFirestore(user.getUid(), user.getEmail(), name, phone, address));
+                runOnUiThread(() -> saveUserToFirestore(user.getEmail(), name, phone, address));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-    private void saveUserToFirestore(String userId, String email, String name, String phone, String address) {
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("idKH", userId);
-        userData.put("Email", email);
-        userData.put("Ten", name);
-        userData.put("Sdt", phone);
-        userData.put("diaChi", address);
+    private void saveUserToFirestore(String email, String name, String phone, String address) {
+        db.collection("KhachHang").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                int newId = task.getResult().size() + 1; // Lấy số lượng tài khoản hiện có + 1
+                String userId = String.format("%02d", newId); // Chuyển thành dạng "01", "02", ...
 
-        db.collection("KhachHang").document(userId).set(userData)
-                .addOnSuccessListener(aVoid -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(RegisterActivity.this,
-                            "Xác thực email thành công! Tài khoản đã được tạo.",
-                            Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(RegisterActivity.this,
-                            "Lưu thông tin khách hàng thất bại!",
-                            Toast.LENGTH_SHORT).show();
-                });
+                // Tạo dữ liệu khách hàng
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("idKH", userId);
+                userData.put("Email", email);
+                userData.put("Ten", name);
+                userData.put("Sdt", phone);
+                userData.put("diaChi", address);
+
+                // Lưu vào Firestore với ID dạng số
+                db.collection("KhachHang").document(userId).set(userData)
+                        .addOnSuccessListener(aVoid -> {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(RegisterActivity.this,
+                                    "Xác thực email thành công! Tài khoản đã được tạo.",
+                                    Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(RegisterActivity.this,
+                                    "Lưu thông tin khách hàng thất bại!",
+                                    Toast.LENGTH_SHORT).show();
+                        });
+
+            } else {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(RegisterActivity.this,
+                        "Lỗi lấy danh sách khách hàng!",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

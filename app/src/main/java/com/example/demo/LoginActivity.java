@@ -20,7 +20,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
-
     TextInputEditText editTextEmail, editTextPassword;
     Button buttonLogin;
     ProgressBar progressBar;
@@ -36,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        sharedPreferences = getSharedPreferences("USER_DATA", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE); // ✅ Đổi tên giống addToCart
 
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
@@ -44,46 +43,62 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         textView = findViewById(R.id.registerNow);
 
-        textView.setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
-        });
+        textView.setOnClickListener(view -> startActivity(new Intent(getApplicationContext(), RegisterActivity.class)));
 
-        buttonLogin.setOnClickListener(view -> {
-            loginUser();
-        });
+        buttonLogin.setOnClickListener(view -> loginUser());
     }
 
     private void loginUser() {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this, "Nhập Email", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Nhập Mật khẩu", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Nhập Email và Mật khẩu", Toast.LENGTH_SHORT).show();
             return;
         }
 
         progressBar.setVisibility(View.VISIBLE);
 
-        // Kiểm tra xác thực qua Firebase Authentication
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            if (user.isEmailVerified()) {
-                                // Nếu đã xác thực email, kiểm tra trong Firestore
-                                checkUserInFirestore(user.getUid(), email);
-                            } else {
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(LoginActivity.this,
-                                        "Email chưa được xác thực! Vui lòng kiểm tra hộp thư.",
-                                        Toast.LENGTH_LONG).show();
-                                mAuth.signOut();
-                            }
+                        if (user != null && user.isEmailVerified()) {
+                            // ✅ Truy vấn Firestore lấy thông tin khách hàng
+                            db.collection("KhachHang")
+                                    .whereEqualTo("Email", email)
+                                    .get()
+                                    .addOnCompleteListener(queryTask -> {
+                                        progressBar.setVisibility(View.GONE);
+                                        if (queryTask.isSuccessful() && !queryTask.getResult().isEmpty()) {
+                                            DocumentSnapshot document = queryTask.getResult().getDocuments().get(0);
+                                            String userId = document.getString("idKH");
+                                            String tenKH = document.getString("Ten");
+
+                                            // ✅ Lưu vào SharedPreferences (đồng nhất với addToCart)
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putString("idKH", userId);
+                                            editor.putString("Ten", tenKH);
+                                            editor.putString("Email", email);
+                                            editor.apply();
+
+                                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                            finish();
+                                        } else {
+                                            Toast.makeText(LoginActivity.this, "Không tìm thấy tài khoản!", Toast.LENGTH_SHORT).show();
+                                            mAuth.signOut();
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(LoginActivity.this, "Lỗi Firestore!", Toast.LENGTH_SHORT).show();
+                                    });
+
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(LoginActivity.this, "Email chưa xác thực!", Toast.LENGTH_LONG).show();
+                            mAuth.signOut();
                         }
                     } else {
                         progressBar.setVisibility(View.GONE);
@@ -93,37 +108,6 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     Toast.makeText(LoginActivity.this, "Lỗi đăng nhập!", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void checkUserInFirestore(String userId, String email) {
-        db.collection("KhachHang").document(userId).get()
-                .addOnCompleteListener(task -> {
-                    progressBar.setVisibility(View.GONE);
-                    if (task.isSuccessful() && task.getResult().exists()) {
-                        DocumentSnapshot document = task.getResult();
-                        String tenKH = document.getString("Ten");
-
-                        // Lưu thông tin vào SharedPreferences
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("idKH", userId);
-                        editor.putString("Ten", tenKH);
-                        editor.putString("Email", email);
-                        editor.apply();
-
-                        Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-
-                        // Chuyển sang MainActivity
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        finish();
-                    } else {
-                        Toast.makeText(LoginActivity.this, "Không tìm thấy tài khoản trong hệ thống!", Toast.LENGTH_SHORT).show();
-                        mAuth.signOut();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(LoginActivity.this, "Lỗi kiểm tra tài khoản!", Toast.LENGTH_SHORT).show();
                 });
     }
 }
