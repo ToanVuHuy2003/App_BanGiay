@@ -1,0 +1,78 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/imgProduct"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="8dp">
+
+        <TextView
+            android:id="@+id/txtProductName"
+            android:text="Tên sản phẩm"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/txtProductPrice"
+            android:text="Giá"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <!-- Layout chỉnh số lượng -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/btnDecreaseQuantity"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/remove_24dp"
+                app:tint="@color/black"
+                android:padding="4dp"/>
+
+            <TextView
+                android:id="@+id/txtProductQuantity"
+                android:text="1"
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"/>
+
+            <ImageView
+                android:id="@+id/btnIncreaseQuantity"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_add_24"
+                app:tint="@color/black"
+                android:padding="4dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Nút xóa sản phẩm -->
+    <ImageView
+        android:id="@+id/btnDeleteProduct"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/baseline_delete_24"
+        android:layout_gravity="center_vertical"
+        app:tint="@color/black"/>
+</LinearLayout>
