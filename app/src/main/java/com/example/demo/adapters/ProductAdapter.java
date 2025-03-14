@@ -40,7 +40,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productName, productPrice;
-        ImageView productImage;
+        ImageView productImage, btnAddToWishlist;
         Button btnAddToCart;
 
         public ProductViewHolder(View itemView) {
@@ -49,6 +49,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             productPrice = itemView.findViewById(R.id.txtProductPrice);
             productImage = itemView.findViewById(R.id.imgProduct);
             btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
+            btnAddToWishlist = itemView.findViewById(R.id.btnAddToWishlist);
         }
     }
 
@@ -71,6 +72,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .load(product.getHinhAnh())
                     .into(holder.productImage);
         }
+
+        // Xử lý thêm vào danh sách yêu thích
+        holder.btnAddToWishlist.setOnClickListener(v -> addToWishlist(product, holder.btnAddToWishlist));
 
         // Xử lý sự kiện bấm nút "Thêm vào giỏ hàng"
         holder.btnAddToCart.setOnClickListener(v -> {
@@ -168,6 +172,60 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             cartRef.set(cartData, SetOptions.merge()) // Merge để tránh mất dữ liệu cũ
                     .addOnSuccessListener(aVoid -> Toast.makeText(context, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(context, "Lỗi khi thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show());
+        });
+    }
+
+    private void addToWishlist(Product product, ImageView btnAddToWishlist) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String userId = sharedPreferences.getString("idKH", null);
+
+        if (userId == null) {
+            Toast.makeText(context, "Vui lòng đăng nhập để thêm vào yêu thích!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DocumentReference wishlistRef = db.collection("DanhSachYeuThich").document(userId);
+
+        wishlistRef.get().addOnSuccessListener(documentSnapshot -> {
+            List<Map<String, Object>> wishlist;
+            if (documentSnapshot.exists()) {
+                wishlist = (List<Map<String, Object>>) documentSnapshot.get("wishlist");
+                if (wishlist == null) {
+                    wishlist = new ArrayList<>();
+                }
+            } else {
+                wishlist = new ArrayList<>();
+            }
+
+            // Kiểm tra nếu sản phẩm đã tồn tại trong danh sách yêu thích
+            for (Map<String, Object> item : wishlist) {
+                if (item.get("idSP").equals(product.getIdSP())) {
+                    Toast.makeText(context, "Sản phẩm đã có trong danh sách yêu thích!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            // Thêm sản phẩm mới vào danh sách yêu thích
+            Map<String, Object> newProduct = new HashMap<>();
+            newProduct.put("idSP", product.getIdSP());
+            newProduct.put("tenSP", product.getTenSP());
+            newProduct.put("giaTien", product.getGiaTien());
+            newProduct.put("hinhAnh", product.getHinhAnh());
+
+            wishlist.add(newProduct);
+
+            // Cập nhật lên Firestore
+            Map<String, Object> wishlistData = new HashMap<>();
+            wishlistData.put("idKH", userId);
+            wishlistData.put("wishlist", wishlist);
+
+            wishlistRef.set(wishlistData, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(context, "Đã thêm vào danh sách yêu thích!", Toast.LENGTH_SHORT).show();
+                        btnAddToWishlist.setImageResource(R.drawable.baseline_favorite_24); // Cập nhật icon
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(context, "Lỗi khi thêm vào danh sách yêu thích!", Toast.LENGTH_SHORT).show());
         });
     }
 

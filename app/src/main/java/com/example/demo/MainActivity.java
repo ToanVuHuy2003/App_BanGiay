@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.demo.user.CartFragment;
 import com.example.demo.user.HomeFragment;
 import com.example.demo.user.ListProFragment;
+import com.example.demo.user.WishlistFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -58,10 +59,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.mnList) {
                     loadFragment(new ListProFragment());
                     return true;
-                } /*else if (itemId == R.id.mnFavor) {
-                    loadFragment(new SettingFragment());
+                } else if (itemId == R.id.mnFavor) {
+                    loadFragment(new WishlistFragment());
                     return true;
-                }*/else if (itemId == R.id.mnCart) {
+                }else if (itemId == R.id.mnCart) {
                     loadFragment(new CartFragment());
                     return true;
                 }
