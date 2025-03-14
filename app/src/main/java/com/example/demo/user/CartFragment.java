@@ -11,11 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.demo.R;
 import com.example.demo.adapters.CartAdapter;
 import com.example.demo.model.Product;
+import com.example.demo.utils.OrderHelper;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
@@ -49,6 +51,16 @@ public class CartFragment extends Fragment {
 
         recyclerViewCart.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewCart.setAdapter(cartAdapter);
+
+        Button btnCheckout = view.findViewById(R.id.btnCheckout);
+        btnCheckout.setOnClickListener(v -> {
+            OrderHelper orderHelper = new OrderHelper(getContext());
+            orderHelper.placeOrder(cartList, () -> {
+                cartList.clear();
+                cartAdapter.notifyDataSetChanged();
+                txtTotalPrice.setText("Tổng tiền: đ0");
+            });
+        });
 
         loadCart();
     }
