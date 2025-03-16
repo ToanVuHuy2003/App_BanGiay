@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.demo.admin.BottomNavigationActivity;
+import com.example.demo.admin.QlKhFragment;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,6 +29,9 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseFirestore db;
     SharedPreferences sharedPreferences;
+
+    private static final String ADMIN_EMAIL = "admin@gmail.com";
+    private static final String ADMIN_PASSWORD = "admin123";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,20 @@ public class LoginActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
+        // ✅ Kiểm tra nếu đăng nhập bằng tài khoản admin
+        if (email.equals(ADMIN_EMAIL) && password.equals(ADMIN_PASSWORD)) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(LoginActivity.this, "Đăng nhập Admin thành công!", Toast.LENGTH_SHORT).show();
+
+            // Chuyển đến BottomNavigationActivity (chứa menu và quản lý Fragment)
+            Intent intent = new Intent(LoginActivity.this, BottomNavigationActivity.class);
+            intent.putExtra("FRAGMENT_TO_LOAD", "QlKhFragment"); // Truyền dữ liệu để mở đúng Fragment
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // ✅ Tiến hành đăng nhập Firebase cho user bình thường
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -75,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                                             String userId = document.getString("idKH");
                                             String tenKH = document.getString("Ten");
 
-                                            // ✅ Lưu vào SharedPreferences (đồng nhất với addToCart)
+                                            // ✅ Lưu vào SharedPreferences
                                             SharedPreferences.Editor editor = sharedPreferences.edit();
                                             editor.putString("idKH", userId);
                                             editor.putString("Ten", tenKH);

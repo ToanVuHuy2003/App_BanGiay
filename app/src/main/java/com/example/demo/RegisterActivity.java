@@ -76,7 +76,7 @@ public class RegisterActivity extends AppCompatActivity {
                                                     Toast.LENGTH_LONG).show();
 
                                             // Đợi xác thực email trước khi lưu vào Firestore
-                                            checkEmailVerification(user, name, phone, address);
+                                            checkEmailVerification(user, password , name, phone, address);
                                         } else {
                                             progressBar.setVisibility(View.GONE);
                                             Toast.makeText(RegisterActivity.this,
@@ -94,21 +94,21 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void checkEmailVerification(FirebaseUser user, String name, String phone, String address) {
+    private void checkEmailVerification(FirebaseUser user, String password, String name, String phone, String address) {
         new Thread(() -> {
             try {
                 while (!user.isEmailVerified()) {
                     user.reload();
                     Thread.sleep(3000);
                 }
-                runOnUiThread(() -> saveUserToFirestore(user.getEmail(), name, phone, address));
+                runOnUiThread(() -> saveUserToFirestore(user.getEmail(), password , name, phone, address));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-    private void saveUserToFirestore(String email, String name, String phone, String address) {
+    private void saveUserToFirestore(String email, String password, String name, String phone, String address) {
         db.collection("KhachHang").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 int newId = task.getResult().size() + 1; // Lấy số lượng tài khoản hiện có + 1
@@ -118,6 +118,7 @@ public class RegisterActivity extends AppCompatActivity {
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("idKH", userId);
                 userData.put("Email", email);
+                userData.put("Password", password);
                 userData.put("Ten", name);
                 userData.put("Sdt", phone);
                 userData.put("diaChi", address);

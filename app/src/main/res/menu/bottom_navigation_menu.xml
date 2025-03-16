@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_khachhang"
+        android:icon="@drawable/manage_accounts_24dp"
+        android:title="Khách Hàng" />
+
+    <item
+        android:id="@+id/nav_sanpham"
+        android:icon="@drawable/baseline_manage_search_24"
+        android:title="Sản Phẩm" />
+
+    <item
+        android:id="@+id/nav_donhang"
+        android:icon="@drawable/orders_24dp"
+        android:title="Đơn Hàng" />
+</menu>
