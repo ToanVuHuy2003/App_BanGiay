@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/txtOrderId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mã đơn: #123456"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/txtCustomerId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Khách hàng: Nguyễn Văn A"
+        android:textSize="16sp"
+        android:paddingTop="4dp"/>
+
+    <TextView
+        android:id="@+id/txtTotalPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tổng tiền: đ 500.000"
+        android:textSize="16sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:paddingTop="4dp"/>
+
+    <TextView
+        android:id="@+id/txtStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trạng thái: Đang xử lý"
+        android:textSize="16sp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:paddingTop="4dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Danh sách sản phẩm:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewProducts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

@@ -104,4 +104,59 @@ public class OrderHelper {
                     }
                 });
     }
+
+    // Lấy ID đơn hàng mới nhất
+    public void getIdDonHang(OnOrderIdReceivedListener listener) {
+        db.collection("DonHang")
+                .orderBy("idDonHang")
+                .limitToLast(1)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int newOrderId = 1;
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot lastOrder = queryDocumentSnapshots.getDocuments().get(0);
+                        String lastId = lastOrder.getString("idDonHang");
+                        if (lastId != null) {
+                            newOrderId = Integer.parseInt(lastId) + 1;
+                        }
+                    }
+                    String formattedOrderId = String.format("%02d", newOrderId);
+                    listener.onOrderIdReceived(formattedOrderId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("OrderHelper", "Lỗi khi lấy ID đơn hàng cuối!", e);
+                    listener.onOrderIdReceived(null);
+                });
+    }
+
+    // Cập nhật ID đơn hàng cho một đơn cụ thể
+    public void setIdDonHang(String oldOrderId, String newOrderId, Runnable callback) {
+        db.collection("DonHang").document(oldOrderId)
+                .update("idDonHang", newOrderId)
+                .addOnSuccessListener(aVoid -> {
+                    if (callback != null) {
+                        callback.run();
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(context, "Lỗi khi cập nhật ID đơn hàng!", Toast.LENGTH_SHORT).show());
+    }
+
+    // Cập nhật trạng thái đơn hàng
+    public void setTrangThai(String orderId, String newStatus, Runnable callback) {
+        db.collection("DonHang").document(orderId)
+                .update("trangThai", newStatus)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(context, "Cập nhật trạng thái thành công!", Toast.LENGTH_SHORT).show();
+                    if (callback != null) {
+                        callback.run();
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(context, "Lỗi khi cập nhật trạng thái!", Toast.LENGTH_SHORT).show());
+    }
+
+    public interface OnOrderIdReceivedListener {
+        void onOrderIdReceived(String orderId);
+    }
 }

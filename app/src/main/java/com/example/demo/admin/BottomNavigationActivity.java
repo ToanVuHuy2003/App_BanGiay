@@ -35,9 +35,9 @@ public class BottomNavigationActivity extends AppCompatActivity {
                     selectedFragment = new QlKhFragment();
                 } else if (itemId == R.id.nav_sanpham) {
                     selectedFragment = new QlSpFragment();
-                }/* else if (itemId == R.id.nav_donhang) {
+                } else if (itemId == R.id.nav_donhang) {
                     selectedFragment = new QlDhFragment();
-                }*/
+                }
 
                 if (selectedFragment != null) {
                     loadFragment(selectedFragment);

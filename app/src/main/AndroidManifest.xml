@@ -34,5 +34,6 @@
             android:name=".admin.BottomNavigationActivity"
             android:exported="true"/>
         <activity android:name=".admin.AddOrEditProductActivity" />
+        <activity android:name=".admin.OrderDetailActivity" />
     </application>
 </manifest>
